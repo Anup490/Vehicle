@@ -6,6 +6,7 @@
 #include "Engine/SkeletalMesh.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Components/InputComponent.h"
+#include "Components/CapsuleComponent.h"
 
 // Sets default values
 AMuffin::AMuffin()
@@ -15,9 +16,15 @@ AMuffin::AMuffin()
 
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MuffinMesh(TEXT("/Game/Vehicle/Sedan/SK_Muffin.SK_Muffin"));
 	GetMesh()->SetSkeletalMesh(MuffinMesh.Object);
+	GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
+	GetMesh()->AddLocalOffset(FVector(0.f, 0.f, -80.f));
+
+	GetCapsuleComponent()->SetCapsuleHalfHeight(90.f);
+	GetCapsuleComponent()->SetCapsuleRadius(90.f);
+	GetCapsuleComponent()->AddLocalOffset(FVector(0.f, 0.f, -15.f));
 
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
-	SpringArm->TargetOffset = FVector(0.f, 0.f, 200.f);
+	SpringArm->TargetOffset = FVector(0.f, 0.f, 150.f);
 	SpringArm->SetRelativeRotation(FRotator(-15.f, 0.f, 0.f));
 	SpringArm->SetupAttachment(RootComponent);
 	SpringArm->TargetArmLength = 600.0f;
@@ -32,20 +39,35 @@ AMuffin::AMuffin()
 void AMuffin::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
 void AMuffin::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 // Called to bind functionality to input
 void AMuffin::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	PlayerInputComponent->BindAxis("MoveForward", this, &AMuffin::MoveForward);
+	PlayerInputComponent->BindAxis("MoveRight", this, &AMuffin::MoveRight);
+}
 
+void AMuffin::MoveForward(float fVal)
+{
+	const FRotator Rotation = Controller->GetControlRotation();
+	const FRotator YawRotation(0, Rotation.Yaw, 0);
+	const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+	AddMovementInput(Direction, fVal);
+}
+
+void AMuffin::MoveRight(float fVal)
+{
+	const FRotator Rotation = Controller->GetControlRotation();
+	const FRotator YawRotation(0, Rotation.Yaw, 0);
+	const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+	AddMovementInput(Direction, fVal);
 }
 

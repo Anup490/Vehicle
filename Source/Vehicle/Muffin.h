@@ -6,8 +6,8 @@
 #include "GameFramework/Character.h"
 #include "Muffin.generated.h"
 
-UCLASS()
-class VEHICLE_API AMuffin : public ACharacter
+UCLASS(config = Game)
+class AMuffin : public ACharacter
 {
 	GENERATED_BODY()
 
@@ -31,4 +31,7 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	void MoveForward(float fVal);
+
+	void MoveRight(float fVal);
 };

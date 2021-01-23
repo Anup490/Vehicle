@@ -2,10 +2,11 @@
 
 #include "VehicleGameMode.h"
 #include "VehiclePawn.h"
+#include "Muffin.h"
 #include "VehicleHud.h"
 
 AVehicleGameMode::AVehicleGameMode()
 {
-	DefaultPawnClass = AVehiclePawn::StaticClass();
+	DefaultPawnClass = AMuffin::StaticClass();
 	HUDClass = AVehicleHud::StaticClass();
 }
