@@ -1,5 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "Muffin.h"
+#include "VehiclePawn.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
@@ -39,6 +40,7 @@ AMuffin::AMuffin()
 void AMuffin::BeginPlay()
 {
 	Super::BeginPlay();
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &AMuffin::OnOverlap);
 }
 
 // Called every frame
@@ -71,3 +73,20 @@ void AMuffin::MoveRight(float fVal)
 	AddMovementInput(Direction, fVal);
 }
 
+void AMuffin::OnOverlap
+(
+	class UPrimitiveComponent* OverlappedCamp,
+	class AActor* OtherActor,
+	class UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex,
+	bool bFromSweep,
+	const FHitResult& SweepResult
+)
+{
+	if (Cast<AVehiclePawn>(OtherActor))
+	{
+		AddActorLocalOffset(FVector(250.f, 0.f, 100.f));
+		FAttachmentTransformRules AttachmentRule(EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, true);
+		AttachToActor(OtherActor, AttachmentRule);
+	}
+}

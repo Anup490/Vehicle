@@ -14,7 +14,7 @@ class AMuffin : public ACharacter
 	UPROPERTY(Category = Camera, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* SpringArm;
 
-	UPROPERTY(Category = Camera, VisibleDefaultsOnly, BLueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = Camera, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* Camera;
 public:
 	// Sets default values for this character's properties
@@ -24,6 +24,17 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+private:
+	UFUNCTION()
+	void OnOverlap
+	(
+		class UPrimitiveComponent* OverlappedCamp,
+		class AActor* OtherActor,
+		class UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult
+	);
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

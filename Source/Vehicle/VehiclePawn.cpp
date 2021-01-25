@@ -92,7 +92,9 @@ AVehiclePawn::AVehiclePawn()
 	InternalCamera->SetupAttachment(InternalCameraBase);
 
 	Box = CreateDefaultSubobject<UBoxComponent>(TEXT("Box"));
-	Box->SetBoxExtent(FVector(50,50,50));
+	Box->SetBoxExtent(FVector(20,150,75));
+	Box->SetupAttachment(GetMesh());
+	Box->AddLocalOffset(FVector(-40.f, 0.f, 100.f));
 
 	//Setup TextRenderMaterial
 	static ConstructorHelpers::FObjectFinder<UMaterial> TextMaterial(TEXT("Material'/Engine/EngineMaterials/AntiAliasedTextMaterialTranslucent.AntiAliasedTextMaterialTranslucent'"));
