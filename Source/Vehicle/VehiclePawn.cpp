@@ -78,6 +78,7 @@ AVehiclePawn::AVehiclePawn()
 	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
 	Camera->bUsePawnControlRotation = false;
 	Camera->FieldOfView = 90.f;
+	Camera->AddLocalOffset(FVector(-900.f, 0.f, 75.f));
 
 	// Create In-Car camera component 
 	InternalCameraOrigin = FVector(0.0f, -40.0f, 120.0f);
