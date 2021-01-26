@@ -8,6 +8,8 @@
 #include "UObject/ConstructorHelpers.h"
 #include "Components/InputComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AMuffin::AMuffin()
@@ -83,10 +85,23 @@ void AMuffin::OnOverlap
 	const FHitResult& SweepResult
 )
 {
-	if (Cast<AVehiclePawn>(OtherActor))
+	AVehiclePawn* Car = Cast<AVehiclePawn>(OtherActor);
+	if (Car)
 	{
-		AddActorLocalOffset(FVector(250.f, 0.f, 100.f));
+		AddActorLocalOffset(FVector(230.f, 0.f, 100.f));
+		float fDotProduct = FVector::DotProduct(GetActorRightVector(), Car->GetActorForwardVector());
+		FRotator Rotation = Controller->GetControlRotation();
+		if (fDotProduct > 0)
+		{
+			Rotation.Yaw += 90.f;
+		}
+		else
+		{
+			Rotation.Yaw -= 90.f;
+		}
+		AController* PlayerController = UGameplayStatics::GetPlayerController(this,0);
+		PlayerController->SetControlRotation(FRotator(0, Rotation.Yaw, 0));
 		FAttachmentTransformRules AttachmentRule(EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, true);
-		AttachToActor(OtherActor, AttachmentRule);
+		AttachToActor(Car, AttachmentRule);
 	}
 }
