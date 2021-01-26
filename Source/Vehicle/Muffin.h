@@ -35,6 +35,8 @@ private:
 		bool bFromSweep,
 		const FHitResult& SweepResult
 	);
+
+	void FaceOtherActorDirection(AActor* OtherActor);
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

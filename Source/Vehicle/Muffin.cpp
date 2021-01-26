@@ -85,23 +85,20 @@ void AMuffin::OnOverlap
 	const FHitResult& SweepResult
 )
 {
-	AVehiclePawn* Car = Cast<AVehiclePawn>(OtherActor);
-	if (Car)
+	if (Cast<AVehiclePawn>(OtherActor))
 	{
 		AddActorLocalOffset(FVector(230.f, 0.f, 100.f));
-		float fDotProduct = FVector::DotProduct(GetActorRightVector(), Car->GetActorForwardVector());
-		FRotator Rotation = Controller->GetControlRotation();
-		if (fDotProduct > 0)
-		{
-			Rotation.Yaw += 90.f;
-		}
-		else
-		{
-			Rotation.Yaw -= 90.f;
-		}
-		AController* PlayerController = UGameplayStatics::GetPlayerController(this,0);
-		PlayerController->SetControlRotation(FRotator(0, Rotation.Yaw, 0));
+		FaceOtherActorDirection(OtherActor);
 		FAttachmentTransformRules AttachmentRule(EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, true);
-		AttachToActor(Car, AttachmentRule);
+		AttachToActor(OtherActor, AttachmentRule);
 	}
+}
+
+void AMuffin::FaceOtherActorDirection(AActor* OtherActor)
+{
+	float fDotProduct = FVector::DotProduct(GetActorRightVector(), OtherActor->GetActorForwardVector());
+	FRotator Rotation = Controller->GetControlRotation();
+	Rotation.Yaw += (fDotProduct > 0) ? 90.f : -90.f;
+	AController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+	PlayerController->SetControlRotation(FRotator(0, Rotation.Yaw, 0));
 }
