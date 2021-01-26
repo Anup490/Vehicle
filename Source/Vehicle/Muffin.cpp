@@ -85,20 +85,22 @@ void AMuffin::OnOverlap
 	const FHitResult& SweepResult
 )
 {
-	if (Cast<AVehiclePawn>(OtherActor))
+	AVehiclePawn* Car = Cast<AVehiclePawn>(OtherActor);
+	if (Car)
 	{
 		AddActorLocalOffset(FVector(230.f, 0.f, 100.f));
-		FaceOtherActorDirection(OtherActor);
+		AController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
 		FAttachmentTransformRules AttachmentRule(EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, true);
 		AttachToActor(OtherActor, AttachmentRule);
+		PlayerController->Possess(Car);
+		FaceOtherActorDirection(Car);
 	}
 }
 
 void AMuffin::FaceOtherActorDirection(AActor* OtherActor)
 {
 	float fDotProduct = FVector::DotProduct(GetActorRightVector(), OtherActor->GetActorForwardVector());
-	FRotator Rotation = Controller->GetControlRotation();
+	FRotator Rotation = GetActorRotation();
 	Rotation.Yaw += (fDotProduct > 0) ? 90.f : -90.f;
-	AController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
-	PlayerController->SetControlRotation(FRotator(0, Rotation.Yaw, 0));
+	SetActorRotation(FRotator(0, Rotation.Yaw, 0));
 }
