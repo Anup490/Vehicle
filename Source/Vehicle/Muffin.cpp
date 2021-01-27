@@ -57,6 +57,7 @@ void AMuffin::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMuffin::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMuffin::MoveRight);
+	PlayerInputComponent->BindAction("EnterExitVehicle", IE_Pressed, this, &AMuffin::EnterVehicle);
 }
 
 void AMuffin::MoveForward(float fVal)
@@ -73,6 +74,11 @@ void AMuffin::MoveRight(float fVal)
 	const FRotator YawRotation(0, Rotation.Yaw, 0);
 	const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 	AddMovementInput(Direction, fVal);
+}
+
+void AMuffin::EnterVehicle()
+{
+	
 }
 
 void AMuffin::OnOverlap
@@ -94,6 +100,7 @@ void AMuffin::OnOverlap
 		AttachToActor(OtherActor, AttachmentRule);
 		PlayerController->Possess(Car);
 		FaceOtherActorDirection(Car);
+		Car->SetPassenger(this);
 	}
 }
 

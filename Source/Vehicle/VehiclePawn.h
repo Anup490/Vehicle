@@ -42,6 +42,8 @@ class AVehiclePawn : public AWheeledVehicle
 
 	UPROPERTY(Category = Box, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UBoxComponent* Box;
+
+	APawn* Passenger;
 public:
 	AVehiclePawn();
 
@@ -77,6 +79,8 @@ public:
 
 	// Begin Actor interface
 	virtual void Tick(float Delta) override;
+
+	void SetPassenger(APawn* PassengerInCar);
 protected:
 	virtual void BeginPlay() override;
 
@@ -100,6 +104,8 @@ public:
 	void OnToggleCamera();
 	/** Handle reset VR device */
 	void OnResetVR();
+
+	void ExitVehicle();
 
 	static const FName LookUpBinding;
 	static const FName LookRightBinding;

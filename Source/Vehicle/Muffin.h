@@ -47,4 +47,6 @@ public:
 	void MoveForward(float fVal);
 
 	void MoveRight(float fVal);
+
+	void EnterVehicle();
 };

@@ -16,6 +16,7 @@
 #include "Materials/Material.h"
 #include "GameFramework/Controller.h"
 #include "Components/BoxComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 #ifndef HMD_MODULE_INCLUDED
 #define HMD_MODULE_INCLUDED 0
@@ -127,6 +128,7 @@ AVehiclePawn::AVehiclePawn()
 	GearDisplayColor = FColor(255, 255, 255, 255);
 
 	bInReverseGear = false;
+	Passenger = 0;
 }
 
 void AVehiclePawn::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -146,6 +148,7 @@ void AVehiclePawn::SetupPlayerInputComponent(class UInputComponent* PlayerInputC
 	PlayerInputComponent->BindAction("SwitchCamera", IE_Pressed, this, &AVehiclePawn::OnToggleCamera);
 
 	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &AVehiclePawn::OnResetVR); 
+	PlayerInputComponent->BindAction("EnterExitVehicle", IE_Pressed, this, &AVehiclePawn::ExitVehicle);
 }
 
 void AVehiclePawn::MoveForward(float Val)
@@ -229,6 +232,11 @@ void AVehiclePawn::Tick(float Delta)
 	}
 }
 
+void AVehiclePawn::SetPassenger(APawn* PassengerInCar)
+{
+	Passenger = PassengerInCar;
+}
+
 void AVehiclePawn::BeginPlay()
 {
 	Super::BeginPlay();
@@ -250,6 +258,20 @@ void AVehiclePawn::OnResetVR()
 		GetController()->SetControlRotation(FRotator());
 	}
 #endif // HMD_MODULE_INCLUDED
+}
+
+void AVehiclePawn::ExitVehicle()
+{
+	if (Passenger)
+	{
+		FDetachmentTransformRules DetachmentRule(EDetachmentRule::KeepWorld, false);
+		Passenger->AddActorLocalOffset(FVector(0.f, 300.f, 0.f));
+		Passenger->DetachFromActor(DetachmentRule);	
+		AController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+		PlayerController->UnPossess();
+		PlayerController->Possess(Passenger);
+		Passenger = 0;
+	}
 }
 
 void AVehiclePawn::UpdateHUDStrings()
