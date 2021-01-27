@@ -96,13 +96,11 @@ void AMuffin::EnterVehicle()
 {
 	if (Vehicle)
 	{
-		//FRotator Rotator = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Vehicle->GetActorLocation());
-		//AController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
-		//PlayerController->SetControlRotation(Rotator);
-
-
-		AddActorLocalOffset(FVector(200.f, 0.f, 100.f));
+		FRotator Rotator = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Vehicle->GetActorLocation());
 		AController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+		PlayerController->SetControlRotation(Rotator);
+		SetActorRotation(FRotator(0.f, Rotator.Yaw, 0.f));
+		AddActorLocalOffset(FVector(200.f, 0.f, 100.f));
 		FAttachmentTransformRules AttachmentRule(EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, true);
 		AttachToActor(Vehicle, AttachmentRule);
 		PlayerController->Possess(Vehicle);
