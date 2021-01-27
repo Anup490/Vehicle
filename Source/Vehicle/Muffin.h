@@ -49,4 +49,6 @@ public:
 	void MoveRight(float fVal);
 
 	void EnterVehicle();
+
+	void LookRight(float fVal);
 };

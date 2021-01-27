@@ -58,6 +58,7 @@ void AMuffin::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMuffin::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMuffin::MoveRight);
 	PlayerInputComponent->BindAction("EnterExitVehicle", IE_Pressed, this, &AMuffin::EnterVehicle);
+	PlayerInputComponent->BindAxis("LookRight", this, &AMuffin::LookRight);
 }
 
 void AMuffin::MoveForward(float fVal)
@@ -79,6 +80,11 @@ void AMuffin::MoveRight(float fVal)
 void AMuffin::EnterVehicle()
 {
 	
+}
+
+void AMuffin::LookRight(float fVal)
+{
+	AddControllerYawInput(fVal * 45.f * GetWorld()->GetDeltaSeconds());
 }
 
 void AMuffin::OnOverlap
