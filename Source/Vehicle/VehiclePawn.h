@@ -43,7 +43,7 @@ class AVehiclePawn : public AWheeledVehicle
 	UPROPERTY(Category = Box, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UBoxComponent* Box;
 
-	APawn* Passenger;
+	class AMuffin* Player;
 public:
 	AVehiclePawn();
 
@@ -80,7 +80,7 @@ public:
 	// Begin Actor interface
 	virtual void Tick(float Delta) override;
 
-	void SetPassenger(APawn* PassengerInCar);
+	void SetPassenger(AMuffin* Passenger);
 protected:
 	virtual void BeginPlay() override;
 

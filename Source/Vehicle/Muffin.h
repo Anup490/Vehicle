@@ -22,6 +22,8 @@ public:
 	// Sets default values for this character's properties
 	AMuffin();
 
+	void ForgetVehicle();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -37,15 +39,6 @@ private:
 		bool bFromSweep,
 		const FHitResult& SweepResult
 	);
-
-	UFUNCTION()
-	void OnOverlapEnd
-	(
-		class UPrimitiveComponent* OverlappedCamp,
-		class AActor* OtherActor,
-		class UPrimitiveComponent* OtherComp,
-		int32 OtherBodyIndex
-	);	
 
 	void FaceOtherActorDirection(AActor* OtherActor);
 public:	

@@ -40,12 +40,16 @@ AMuffin::AMuffin()
 	Vehicle = 0;
 }
 
+void AMuffin::ForgetVehicle()
+{
+	Vehicle = 0;
+}
+
 // Called when the game starts or when spawned
 void AMuffin::BeginPlay()
 {
 	Super::BeginPlay();
 	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &AMuffin::OnOverlapBegin);
-	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &AMuffin::OnOverlapEnd);
 }
 
 // Called every frame
@@ -92,7 +96,11 @@ void AMuffin::EnterVehicle()
 {
 	if (Vehicle)
 	{
-		//AddActorLocalOffset(FVector(230.f, 0.f, 100.f));
+		//FRotator Rotator = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Vehicle->GetActorLocation());
+		//AController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+		//PlayerController->SetControlRotation(Rotator);
+
+
 		AddActorLocalOffset(FVector(200.f, 0.f, 100.f));
 		AController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
 		FAttachmentTransformRules AttachmentRule(EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, true);
@@ -125,21 +133,18 @@ void AMuffin::OnOverlapBegin
 	}
 }
 
-void AMuffin::OnOverlapEnd
-(
-	class UPrimitiveComponent* OverlappedCamp,
-	class AActor* OtherActor,
-	class UPrimitiveComponent* OtherComp,
-	int32 OtherBodyIndex
-)
-{
-	Vehicle = 0;
-}
-
 void AMuffin::FaceOtherActorDirection(AActor* OtherActor)
 {
 	float fDotProduct = FVector::DotProduct(GetActorRightVector(), OtherActor->GetActorForwardVector());
 	FRotator Rotation = GetActorRotation();
-	Rotation.Yaw += (fDotProduct > 0) ? 90.f : -90.f;
-	SetActorRotation(FRotator(0, Rotation.Yaw, 0));
+	if (fDotProduct >= 0.9)
+	{
+		Rotation.Yaw += 90.f;
+		SetActorRotation(FRotator(0, Rotation.Yaw, 0));
+	}
+	else if (fDotProduct <= -0.9)
+	{
+		Rotation.Yaw -= 90.f;
+		SetActorRotation(FRotator(0, Rotation.Yaw, 0));
+	}
 }

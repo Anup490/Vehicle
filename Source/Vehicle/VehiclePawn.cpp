@@ -4,6 +4,7 @@
 #include "VehicleWheelFront.h"
 #include "VehicleWheelRear.h"
 #include "VehicleHud.h"
+#include "Muffin.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
@@ -128,7 +129,7 @@ AVehiclePawn::AVehiclePawn()
 	GearDisplayColor = FColor(255, 255, 255, 255);
 
 	bInReverseGear = false;
-	Passenger = 0;
+	Player = 0;
 }
 
 void AVehiclePawn::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -232,9 +233,9 @@ void AVehiclePawn::Tick(float Delta)
 	}
 }
 
-void AVehiclePawn::SetPassenger(APawn* PassengerInCar)
+void AVehiclePawn::SetPassenger(AMuffin* Passenger)
 {
-	Passenger = PassengerInCar;
+	Player = Passenger;
 }
 
 void AVehiclePawn::BeginPlay()
@@ -262,15 +263,16 @@ void AVehiclePawn::OnResetVR()
 
 void AVehiclePawn::ExitVehicle()
 {
-	if (Passenger)
+	if (Player)
 	{
 		FDetachmentTransformRules DetachmentRule(EDetachmentRule::KeepWorld, false);
-		Passenger->AddActorLocalOffset(FVector(0.f, 300.f, 0.f));
-		Passenger->DetachFromActor(DetachmentRule);	
+		Player->AddActorLocalOffset(FVector(0.f, 300.f, 0.f));
+		Player->DetachFromActor(DetachmentRule);	
 		AController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
 		PlayerController->UnPossess();
-		PlayerController->Possess(Passenger);
-		Passenger = 0;
+		PlayerController->Possess(Player);
+		Player->ForgetVehicle();
+		Player = 0;
 	}
 }
 
