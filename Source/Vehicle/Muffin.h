@@ -16,6 +16,8 @@ class AMuffin : public ACharacter
 
 	UPROPERTY(Category = Camera, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* Camera;
+
+	class AVehiclePawn* Vehicle;
 public:
 	// Sets default values for this character's properties
 	AMuffin();
@@ -26,7 +28,7 @@ protected:
 
 private:
 	UFUNCTION()
-	void OnOverlap
+	void OnOverlapBegin
 	(
 		class UPrimitiveComponent* OverlappedCamp,
 		class AActor* OtherActor,
@@ -35,6 +37,15 @@ private:
 		bool bFromSweep,
 		const FHitResult& SweepResult
 	);
+
+	UFUNCTION()
+	void OnOverlapEnd
+	(
+		class UPrimitiveComponent* OverlappedCamp,
+		class AActor* OtherActor,
+		class UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex
+	);	
 
 	void FaceOtherActorDirection(AActor* OtherActor);
 public:	

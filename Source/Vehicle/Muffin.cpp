@@ -36,13 +36,16 @@ AMuffin::AMuffin()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
+
+	Vehicle = 0;
 }
 
 // Called when the game starts or when spawned
 void AMuffin::BeginPlay()
 {
 	Super::BeginPlay();
-	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &AMuffin::OnOverlap);
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &AMuffin::OnOverlapBegin);
+	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &AMuffin::OnOverlapEnd);
 }
 
 // Called every frame
@@ -63,23 +66,41 @@ void AMuffin::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AMuffin::MoveForward(float fVal)
 {
-	const FRotator Rotation = Controller->GetControlRotation();
-	const FRotator YawRotation(0, Rotation.Yaw, 0);
-	const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-	AddMovementInput(Direction, fVal);
+	AController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+	if (PlayerController)
+	{
+		const FRotator Rotation = PlayerController->GetControlRotation();
+		const FRotator YawRotation(0, Rotation.Yaw, 0);
+		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+		AddMovementInput(Direction, fVal);
+	}
 }
 
 void AMuffin::MoveRight(float fVal)
 {
-	const FRotator Rotation = Controller->GetControlRotation();
-	const FRotator YawRotation(0, Rotation.Yaw, 0);
-	const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-	AddMovementInput(Direction, fVal);
+	AController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+	if (PlayerController)
+	{
+		const FRotator Rotation = PlayerController->GetControlRotation();
+		const FRotator YawRotation(0, Rotation.Yaw, 0);
+		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		AddMovementInput(Direction, fVal);
+	}
 }
 
 void AMuffin::EnterVehicle()
 {
-	
+	if (Vehicle)
+	{
+		//AddActorLocalOffset(FVector(230.f, 0.f, 100.f));
+		AddActorLocalOffset(FVector(200.f, 0.f, 100.f));
+		AController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+		FAttachmentTransformRules AttachmentRule(EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, true);
+		AttachToActor(Vehicle, AttachmentRule);
+		PlayerController->Possess(Vehicle);
+		FaceOtherActorDirection(Vehicle);
+		Vehicle->SetPassenger(this);
+	}
 }
 
 void AMuffin::LookRight(float fVal)
@@ -87,7 +108,7 @@ void AMuffin::LookRight(float fVal)
 	AddControllerYawInput(fVal * 45.f * GetWorld()->GetDeltaSeconds());
 }
 
-void AMuffin::OnOverlap
+void AMuffin::OnOverlapBegin
 (
 	class UPrimitiveComponent* OverlappedCamp,
 	class AActor* OtherActor,
@@ -100,14 +121,19 @@ void AMuffin::OnOverlap
 	AVehiclePawn* Car = Cast<AVehiclePawn>(OtherActor);
 	if (Car)
 	{
-		AddActorLocalOffset(FVector(230.f, 0.f, 100.f));
-		AController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
-		FAttachmentTransformRules AttachmentRule(EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, true);
-		AttachToActor(OtherActor, AttachmentRule);
-		PlayerController->Possess(Car);
-		FaceOtherActorDirection(Car);
-		Car->SetPassenger(this);
+		Vehicle = Car;
 	}
+}
+
+void AMuffin::OnOverlapEnd
+(
+	class UPrimitiveComponent* OverlappedCamp,
+	class AActor* OtherActor,
+	class UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex
+)
+{
+	Vehicle = 0;
 }
 
 void AMuffin::FaceOtherActorDirection(AActor* OtherActor)
