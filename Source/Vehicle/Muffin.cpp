@@ -96,15 +96,10 @@ void AMuffin::EnterVehicle()
 {
 	if (Vehicle)
 	{
-		FRotator Rotator = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Vehicle->GetActorLocation());
-		AController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
-		PlayerController->SetControlRotation(Rotator);
-		SetActorRotation(FRotator(0.f, Rotator.Yaw, 0.f));
-		AddActorLocalOffset(FVector(200.f, 0.f, 100.f));
-		FAttachmentTransformRules AttachmentRule(EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, true);
-		AttachToActor(Vehicle, AttachmentRule);
-		PlayerController->Possess(Vehicle);
-		FaceOtherActorDirection(Vehicle);
+		FaceTowardsVehicle();
+		AttachToVehicle();
+		Controller->Possess(Vehicle);
+		FaceForward();
 		Vehicle->SetPassenger(this);
 	}
 }
@@ -131,18 +126,24 @@ void AMuffin::OnOverlapBegin
 	}
 }
 
-void AMuffin::FaceOtherActorDirection(AActor* OtherActor)
+void AMuffin::FaceTowardsVehicle()
 {
-	float fDotProduct = FVector::DotProduct(GetActorRightVector(), OtherActor->GetActorForwardVector());
+	FRotator Rotator = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Vehicle->GetActorLocation());
+	Controller->SetControlRotation(Rotator);
+	SetActorRotation(FRotator(0.f, Rotator.Yaw, 0.f));
+}
+
+void AMuffin::AttachToVehicle()
+{
+	AddActorLocalOffset(FVector(200.f, 0.f, 100.f));
+	FAttachmentTransformRules AttachmentRule(EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, true);
+	AttachToActor(Vehicle, AttachmentRule);
+}
+
+void AMuffin::FaceForward()
+{
+	float fDotProduct = FVector::DotProduct(GetActorRightVector(), Vehicle->GetActorForwardVector());
 	FRotator Rotation = GetActorRotation();
-	if (fDotProduct >= 0.9)
-	{
-		Rotation.Yaw += 90.f;
-		SetActorRotation(FRotator(0, Rotation.Yaw, 0));
-	}
-	else if (fDotProduct <= -0.9)
-	{
-		Rotation.Yaw -= 90.f;
-		SetActorRotation(FRotator(0, Rotation.Yaw, 0));
-	}
+	Rotation.Yaw += (fDotProduct >= 0.9) ? 90.f : -90.f;
+	SetActorRotation(FRotator(0, Rotation.Yaw, 0));
 }

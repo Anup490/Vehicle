@@ -40,7 +40,11 @@ private:
 		const FHitResult& SweepResult
 	);
 
-	void FaceOtherActorDirection(AActor* OtherActor);
+	void FaceTowardsVehicle();
+
+	void AttachToVehicle();
+
+	void FaceForward();
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
