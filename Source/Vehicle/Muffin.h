@@ -40,6 +40,15 @@ private:
 		const FHitResult& SweepResult
 	);
 
+	UFUNCTION()
+	void OnOverlapEnd
+	(
+		class UPrimitiveComponent* OverlappedCamp,
+		class AActor* OtherActor,
+		class UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex
+	);
+
 	void FaceTowardsVehicle();
 
 	void AttachToVehicle();

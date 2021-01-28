@@ -50,6 +50,7 @@ void AMuffin::BeginPlay()
 {
 	Super::BeginPlay();
 	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &AMuffin::OnOverlapBegin);
+	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &AMuffin::OnOverlapEnd);
 }
 
 // Called every frame
@@ -123,6 +124,20 @@ void AMuffin::OnOverlapBegin
 	if (Car)
 	{
 		Vehicle = Car;
+	}
+}
+
+void AMuffin::OnOverlapEnd
+(
+	class UPrimitiveComponent* OverlappedCamp,
+	class AActor* OtherActor,
+	class UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex
+)
+{
+	if (Cast<AVehiclePawn>(OtherActor))
+	{
+		Vehicle = 0;
 	}
 }
 
