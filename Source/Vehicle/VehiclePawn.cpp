@@ -4,6 +4,7 @@
 #include "VehicleWheelFront.h"
 #include "VehicleWheelRear.h"
 #include "VehicleHud.h"
+#include "Muffin.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
@@ -15,6 +16,8 @@
 #include "Components/TextRenderComponent.h"
 #include "Materials/Material.h"
 #include "GameFramework/Controller.h"
+#include "Components/BoxComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 #ifndef HMD_MODULE_INCLUDED
 #define HMD_MODULE_INCLUDED 0
@@ -77,6 +80,7 @@ AVehiclePawn::AVehiclePawn()
 	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
 	Camera->bUsePawnControlRotation = false;
 	Camera->FieldOfView = 90.f;
+	Camera->AddLocalOffset(FVector(-900.f, 0.f, 75.f));
 
 	// Create In-Car camera component 
 	InternalCameraOrigin = FVector(0.0f, -40.0f, 120.0f);
@@ -89,6 +93,11 @@ AVehiclePawn::AVehiclePawn()
 	InternalCamera->bUsePawnControlRotation = false;
 	InternalCamera->FieldOfView = 90.f;
 	InternalCamera->SetupAttachment(InternalCameraBase);
+
+	Box = CreateDefaultSubobject<UBoxComponent>(TEXT("Box"));
+	Box->SetBoxExtent(FVector(20,150,75));
+	Box->SetupAttachment(GetMesh());
+	Box->AddLocalOffset(FVector(-40.f, 0.f, 100.f));
 
 	//Setup TextRenderMaterial
 	static ConstructorHelpers::FObjectFinder<UMaterial> TextMaterial(TEXT("Material'/Engine/EngineMaterials/AntiAliasedTextMaterialTranslucent.AntiAliasedTextMaterialTranslucent'"));
@@ -120,6 +129,7 @@ AVehiclePawn::AVehiclePawn()
 	GearDisplayColor = FColor(255, 255, 255, 255);
 
 	bInReverseGear = false;
+	Player = 0;
 }
 
 void AVehiclePawn::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -139,6 +149,7 @@ void AVehiclePawn::SetupPlayerInputComponent(class UInputComponent* PlayerInputC
 	PlayerInputComponent->BindAction("SwitchCamera", IE_Pressed, this, &AVehiclePawn::OnToggleCamera);
 
 	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &AVehiclePawn::OnResetVR); 
+	PlayerInputComponent->BindAction("EnterExitVehicle", IE_Pressed, this, &AVehiclePawn::ExitVehicle);
 }
 
 void AVehiclePawn::MoveForward(float Val)
@@ -222,6 +233,11 @@ void AVehiclePawn::Tick(float Delta)
 	}
 }
 
+void AVehiclePawn::SetPassenger(AMuffin* Passenger)
+{
+	Player = Passenger;
+}
+
 void AVehiclePawn::BeginPlay()
 {
 	Super::BeginPlay();
@@ -243,6 +259,21 @@ void AVehiclePawn::OnResetVR()
 		GetController()->SetControlRotation(FRotator());
 	}
 #endif // HMD_MODULE_INCLUDED
+}
+
+void AVehiclePawn::ExitVehicle()
+{
+	if (Player)
+	{
+		FDetachmentTransformRules DetachmentRule(EDetachmentRule::KeepWorld, false);
+		Player->AddActorLocalOffset(FVector(0.f, 300.f, 0.f));
+		Player->DetachFromActor(DetachmentRule);	
+		AController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+		PlayerController->UnPossess();
+		PlayerController->Possess(Player);
+		Player->ForgetVehicle();
+		Player = 0;
+	}
 }
 
 void AVehiclePawn::UpdateHUDStrings()

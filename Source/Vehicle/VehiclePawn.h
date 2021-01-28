@@ -40,7 +40,10 @@ class AVehiclePawn : public AWheeledVehicle
 	UPROPERTY(Category = Display, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	UTextRenderComponent* InCarGear;
 
-	
+	UPROPERTY(Category = Box, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UBoxComponent* Box;
+
+	class AMuffin* Player;
 public:
 	AVehiclePawn();
 
@@ -76,6 +79,8 @@ public:
 
 	// Begin Actor interface
 	virtual void Tick(float Delta) override;
+
+	void SetPassenger(AMuffin* Passenger);
 protected:
 	virtual void BeginPlay() override;
 
@@ -99,6 +104,8 @@ public:
 	void OnToggleCamera();
 	/** Handle reset VR device */
 	void OnResetVR();
+
+	void ExitVehicle();
 
 	static const FName LookUpBinding;
 	static const FName LookRightBinding;
